@@ -4,18 +4,15 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
       ca-certificates \
       git \
-      build-essential \
-      cmake \
-      zlib1g-dev \
+      g++ \
+      pkg-config \
       libssl-dev \
-      libminizip-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /tmp
-RUN git clone --depth=1 https://github.com/zhlynn/zsign.git \
-    && cd zsign \
-    && cmake . \
-    && make
+RUN git clone https://github.com/zhlynn/zsign.git \
+    && cd zsign/build/linux \
+    && make clean && make
 
 FROM node:20-bookworm-slim
 
@@ -41,7 +38,7 @@ RUN npm ci --omit=dev
 COPY . .
 
 # Add zsign binary built from source
-COPY --from=zsign-builder /tmp/zsign/bin/zsign /usr/local/bin/zsign
+COPY --from=zsign-builder /tmp/zsign/build/linux/zsign /usr/local/bin/zsign
 RUN chmod +x /usr/local/bin/zsign
 
 # Ensure writable working folders exist at build/runtime
