@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Getting Started - IPA Signer Wiki</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">IPA Signer Wiki</div>
+      <nav class="nav">
+        <a href="index.html">Overview</a>
+        <a class="active" href="getting-started.html">Getting Started</a>
+        <a href="api.html">API Reference</a>
+        <a href="architecture.html">Architecture</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>Getting Started</h1>
+      <p>Run locally with Node.js or use Docker for a repeatable environment.</p>
+
+      <h2>Local setup</h2>
+      <pre><code>npm install
+node app.js</code></pre>
+      <p>Server defaults to <code>http://localhost:3000</code>.</p>
+
+      <h2>Environment variables</h2>
+      <table>
+        <thead><tr><th>Name</th><th>Default</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>PORT</code></td><td><code>3000</code></td><td>HTTP server port</td></tr>
+          <tr><td><code>PUBLIC_DOMAIN</code></td><td><code>https://yourdomain.com</code></td><td>Base URL for install and plist links</td></tr>
+          <tr><td><code>CYAN_CMD</code></td><td><code>cyan</code></td><td>Path or command for cyan executable</td></tr>
+          <tr><td><code>RATE_LIMIT_WINDOW_MS</code></td><td><code>900000</code></td><td>Rate-limit time window</td></tr>
+          <tr><td><code>RATE_LIMIT_MAX</code></td><td><code>100</code></td><td>Max requests per window</td></tr>
+          <tr><td><code>LOG_LEVEL</code></td><td><code>info</code></td><td>Winston log level</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Docker setup</h2>
+      <pre><code>docker build -t ipa-signer .
+docker run --rm -p 3000:3000 \
+  -e PUBLIC_DOMAIN=https://your-domain.example/ \
+  ipa-signer</code></pre>
+    </main>
+  </div>
+</body>
+</html>

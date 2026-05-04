@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IPA Signer Wiki</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">IPA Signer Wiki</div>
+      <nav class="nav">
+        <a class="active" href="index.html">Overview</a>
+        <a href="getting-started.html">Getting Started</a>
+        <a href="api.html">API Reference</a>
+        <a href="architecture.html">Architecture</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>Overview</h1>
+      <p>IPA Signer is a web service that signs iOS IPA files using your provisioning profile and certificate. It also supports advanced modifications through cyan before signing.</p>
+
+      <div class="card">
+        <h2>What this repo includes</h2>
+        <ul>
+          <li>Express server and upload flow in <code>app.js</code></li>
+          <li>Worker-thread signing integration in <code>zsign-worker.js</code></li>
+          <li>Web UI for uploads in <code>index.html</code> and <code>style.css</code></li>
+          <li>Dockerized runtime with <code>zsign</code> and <code>cyan</code></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Core flow</h2>
+        <ol>
+          <li>Client uploads <code>.ipa</code>, <code>.p12</code>, and <code>.mobileprovision</code> to <code>POST /sign</code>.</li>
+          <li>Optional advanced options are applied through cyan.</li>
+          <li>IPA is signed via zsign in a worker thread.</li>
+          <li>Server returns install URLs (page URL + direct <code>itms-services</code> link).</li>
+        </ol>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

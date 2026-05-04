@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Architecture - IPA Signer Wiki</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">IPA Signer Wiki</div>
+      <nav class="nav">
+        <a href="index.html">Overview</a>
+        <a href="getting-started.html">Getting Started</a>
+        <a href="api.html">API Reference</a>
+        <a class="active" href="architecture.html">Architecture</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>Architecture</h1>
+      <div class="card">
+        <h2>Main components</h2>
+        <ul>
+          <li><code>app.js</code>: Express API, file handling, cleanup scheduler, install page generation.</li>
+          <li><code>zsign-worker.js</code>: Worker thread wrapper for zsign signing job.</li>
+          <li><code>uploads/</code>: runtime storage for temporary files, certs, profiles, signed IPAs, and plist files.</li>
+          <li><code>logs/</code>: error and combined logs via Winston.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>Request lifecycle</h2>
+        <ol>
+          <li>Receive multipart upload with IPA + signing assets.</li>
+          <li>Move files into working directories.</li>
+          <li>Optionally mutate IPA with cyan.</li>
+          <li>Sign IPA with zsign in a worker thread.</li>
+          <li>Extract app metadata from resulting IPA.</li>
+          <li>Create plist + install URL and return response.</li>
+          <li>Clean transient files on timer and expiry jobs.</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h2>Operational notes</h2>
+        <ul>
+          <li>Rate limiting is global and controlled by env vars.</li>
+          <li>Generated install links and artifacts are intentionally short-lived.</li>
+          <li>Set <code>PUBLIC_DOMAIN</code> correctly in production; install URLs depend on it.</li>
+        </ul>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

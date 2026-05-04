@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Reference - IPA Signer Wiki</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">IPA Signer Wiki</div>
+      <nav class="nav">
+        <a href="index.html">Overview</a>
+        <a href="getting-started.html">Getting Started</a>
+        <a class="active" href="api.html">API Reference</a>
+        <a href="architecture.html">Architecture</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>API Reference</h1>
+      <p class="muted">Built-in endpoints currently implemented in <code>app.js</code>.</p>
+
+      <div class="card">
+        <h2>POST /sign</h2>
+        <p>Signs an IPA and returns install URLs.</p>
+        <h3>Content-Type</h3>
+        <p><code>multipart/form-data</code></p>
+
+        <h3>Required files</h3>
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>ipa</code></td><td>file</td><td><code>.ipa</code></td></tr>
+            <tr><td><code>p12</code></td><td>file</td><td><code>.p12</code></td></tr>
+            <tr><td><code>mobileprovision</code></td><td>file</td><td><code>.mobileprovision</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3>Optional fields</h3>
+        <table>
+          <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>p12_password</code></td><td>Password for the P12</td></tr>
+            <tr><td><code>adv_name</code></td><td>Set app display name (cyan <code>-n</code>)</td></tr>
+            <tr><td><code>adv_version</code></td><td>Set app version (cyan <code>-v</code>)</td></tr>
+            <tr><td><code>adv_bundle_id</code></td><td>Set bundle ID (cyan <code>-b</code>)</td></tr>
+            <tr><td><code>adv_min_os</code></td><td>Set min iOS version (cyan <code>-m</code>)</td></tr>
+            <tr><td><code>adv_remove_supported_devices</code></td><td>Remove UISupportedDevices</td></tr>
+            <tr><td><code>adv_no_watch</code></td><td>Remove watch app</td></tr>
+            <tr><td><code>adv_fakesign</code></td><td>Fakesign binaries</td></tr>
+            <tr><td><code>adv_thin</code></td><td>Thin binaries to arm64</td></tr>
+            <tr><td><code>adv_remove_extensions</code></td><td>Remove all extensions</td></tr>
+            <tr><td><code>adv_remove_encrypted</code></td><td>Remove encrypted extensions</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Success response</h3>
+        <pre><code>{
+  "installLink": "https://domain/install/12345",
+  "directInstallLink": "itms-services://?action=download-manifest&url=https://domain/plist/app.plist"
+}</code></pre>
+
+        <h3>Error response</h3>
+        <pre><code>{
+  "error": "Signing failed",
+  "details": "..."
+}</code></pre>
+      </div>
+
+      <div class="card">
+        <h2>GET /install/:id</h2>
+        <p>Returns a simple install page for a signed build. Link expires after one hour.</p>
+      </div>
+
+      <div class="card">
+        <h2>Static routes</h2>
+        <ul>
+          <li><code>GET /</code> - Upload UI</li>
+          <li><code>GET /style.css</code> - UI stylesheet</li>
+          <li><code>GET /signed/*</code> - Signed IPA static files</li>
+          <li><code>GET /plist/*</code> - Manifest plist static files</li>
+        </ul>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
