@@ -59,6 +59,28 @@ node app.js
 
 The server will be accessible at [http://localhost:3000](http://localhost:3000).
 
+
+
+### 3. Run with Docker
+
+Build the image:
+
+```bash
+docker build -t ipa-signer .
+```
+
+Run the container:
+
+```bash
+docker run --rm -p 3000:3000 \
+  -e PUBLIC_DOMAIN=http://localhost:3000 \
+  -v "$(pwd)/uploads:/app/uploads" \
+  -v "$(pwd)/logs:/app/logs" \
+  ipa-signer
+```
+
+> This image installs both `zsign` and `cyan` (`pyzule-rw`) so signing and advanced tweaks work out of the box.
+
 ---
 
 ## Using the Web Interface
