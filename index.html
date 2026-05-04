@@ -1,272 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ipa-signer - Sign IPA Files Online</title>
-  
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="This might be the fastest and stable signer ever.">
-  <meta name="keywords" content="iOS, IPA, signer, sign, OTA, distribution, iPhone, iPad">
-  
-  <!-- Open Graph / Discord -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://yourdomain.com/">
-  <meta property="og:title" content="ipa-signer">
-  <meta property="og:description" content="This might be the fastest and stable signer ever.">
-  
-  <!-- Twitter -->
-  <meta property="twitter:card" content="summary">
-  <meta property="twitter:url" content="https://yourdomain.com/">
-  <meta property="twitter:title" content="ipa-signer">
-  <meta property="twitter:description" content="This might be the fastest and stable signer ever.">
-  
-  <!-- Theme Color -->
-  <meta name="theme-color" content="#007aff">
-  
-  <link rel="stylesheet" href="/style.css">
+  <title>iOS Signer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* Art direction: iOS signing tool → precise, technical, dark-first
+       Palette: deep dark surfaces, teal primary accent
+       Typography: Geist (body) + Geist Mono (code/values)
+       Density: balanced */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      scroll-behavior: smooth;
+    }
+
+    :root, [data-theme="light"] {
+      --color-bg: #f7f6f2;
+      --color-surface: #f0efe9;
+      --color-surface-2: #e8e7e1;
+      --color-surface-offset: #dedad3;
+      --color-border: oklch(0.28 0.005 80 / 0.12);
+      --color-divider: oklch(0.28 0.005 80 / 0.08);
+      --color-text: #1a1916;
+      --color-text-muted: #6b6a65;
+      --color-text-faint: #b0afa9;
+      --color-primary: #01696f;
+      --color-primary-hover: #0c4e54;
+      --color-primary-glow: oklch(0.48 0.08 192 / 0.15);
+      --color-success: #437a22;
+      --color-error: #a12c7b;
+      --color-warning: #964219;
+      --shadow-sm: 0 1px 2px oklch(0.2 0.01 80 / 0.06);
+      --shadow-md: 0 4px 16px oklch(0.2 0.01 80 / 0.08), 0 1px 2px oklch(0.2 0.01 80 / 0.06);
+    }
+  </style>
 </head>
 <body>
-  <button class="toggle" id="themeToggle" aria-label="Toggle dark mode">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </button>
-  
-  <div class="container signer">
-    <h1>Portal Signer</h1>
-    <form id="signForm">
-      <div class="card">
-        <label>IPA File</label>
-        <input type="file" name="ipa" id="ipa">
-      </div>
-
-      <div class="card">
-        <label>Certificate (.p12)</label>
-        <input type="file" name="p12" id="p12" required>
-      </div>
-
-      <div class="card">
-        <label>Provisioning Profile</label>
-        <input type="file" name="mobileprovision" id="mobileprovision" required>
-      </div>
-
-      <div class="card">
-        <label for="p12_password">P12 Password</label>
-        <input type="password" name="p12_password" id="p12_password" placeholder="Optional">
-      </div>
-
-      <button type="button" class="chevron-toggle" id="advancedToggle" aria-expanded="false" aria-controls="advancedContent">
-        Advanced
-        <span class="chevron">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </span>
-      </button>
-
-      <div id="advancedContent" aria-hidden="true">
-        <div class="card">
-          <label for="adv_name">App Name</label>
-          <input type="text" name="adv_name" id="adv_name" placeholder="Optional">
-        </div>
-
-        <div class="card">
-          <label for="adv_version">App Version</label>
-          <input type="text" name="adv_version" id="adv_version" placeholder="Optional">
-        </div>
-
-        <div class="card">
-          <label for="adv_bundle_id">Bundle ID</label>
-          <input type="text" name="adv_bundle_id" id="adv_bundle_id" class="wide" placeholder="com.example.app">
-        </div>
-
-        <div class="card">
-          <label for="adv_min_os">Minimum iOS</label>
-          <input type="text" name="adv_min_os" id="adv_min_os" placeholder="e.g. 12.0">
-        </div>
-
-        <div class="checkbox-group">
-          <label for="adv_remove_supported_devices">Remove UISupportedDevices</label>
-          <input type="checkbox" name="adv_remove_supported_devices" id="adv_remove_supported_devices">
-        </div>
-
-        <div class="checkbox-group">
-          <label for="adv_no_watch">Remove Watch App</label>
-          <input type="checkbox" name="adv_no_watch" id="adv_no_watch">
-        </div>
-
-        <div class="checkbox-group">
-          <label for="adv_fakesign">Fakesign Binaries</label>
-          <input type="checkbox" name="adv_fakesign" id="adv_fakesign">
-        </div>
-
-        <div class="checkbox-group">
-          <label for="adv_thin">Thin to arm64</label>
-          <input type="checkbox" name="adv_thin" id="adv_thin">
-        </div>
-
-        <div class="checkbox-group">
-          <label for="adv_remove_extensions">Remove All Extensions</label>
-          <input type="checkbox" name="adv_remove_extensions" id="adv_remove_extensions">
-        </div>
-
-        <div class="checkbox-group">
-          <label for="adv_remove_encrypted">Remove Encrypted Extensions</label>
-          <input type="checkbox" name="adv_remove_encrypted" id="adv_remove_encrypted">
-        </div>
-      </div>
-
-      <button type="submit" class="blue-card">Sign IPA</button>
-    </form>
-
-    <div id="popup"></div>
-  </div>
-
-  <script>
-    // Dark mode toggle
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-    
-    // Check for saved theme preference or default to light mode
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    body.setAttribute('data-theme', currentTheme);
-    
-    themeToggle.addEventListener('click', function() {
-      const theme = body.getAttribute('data-theme');
-      const newTheme = theme === 'dark' ? 'light' : 'dark';
-      
-      body.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-      
-      // Add rotation animation
-      this.classList.add('rotate');
-      setTimeout(() => this.classList.remove('rotate'), 1000);
-    });
-    
-    var form = document.getElementById('signForm');
-    var popup = document.getElementById('popup');
-    var advancedToggle = document.getElementById('advancedToggle');
-    var advancedContent = document.getElementById('advancedContent');
-
-    if (advancedToggle && advancedContent) {
-      advancedToggle.addEventListener('click', function() {
-        var isExpanded = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', String(!isExpanded));
-        advancedContent.classList.toggle('expanded', !isExpanded);
-        advancedContent.setAttribute('aria-hidden', String(isExpanded));
-      });
-    }
-
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      var ipaFile = document.getElementById('ipa').files[0];
-      var p12File = document.getElementById('p12').files[0];
-      var mpFile = document.getElementById('mobileprovision').files[0];
-
-      if (!ipaFile || !p12File || !mpFile) {
-        alert('Please select IPA, P12, and Provisioning Profile files.');
-        return;
-      }
-
-      var formData = new FormData(form);
-      var button = form.querySelector('button[type="submit"]');
-
-      button.disabled = true;
-      button.textContent = 'Signing...';
-
-      fetch('/sign', {
-        method: 'POST',
-        body: formData
-      })
-      .then(function(response) {
-        if (!response.ok) {
-          return response.text().then(function(text) {
-            try {
-              var json = JSON.parse(text);
-              throw new Error(json.error || 'Server error');
-            } catch (e) {
-              throw new Error('Server error: ' + response.status);
-            }
-          });
-        }
-        return response.json();
-      })
-      .then(function(data) {
-        if (data.installLink) {
-          // Card style popup content, horizontal and centered
-          var card = document.createElement('div');
-          card.className = 'card';
-          card.style.maxWidth = '400px';
-          card.style.margin = '0 auto';
-          card.style.textAlign = 'center';
-
-          var title = document.createElement('h2');
-          title.textContent = 'Signing Complete';
-
-          var message = document.createElement('div');
-          message.className = 'success';
-          message.textContent = 'Your signed IPA is ready!';
-
-          var linkBtn = document.createElement('a');
-          linkBtn.href = data.installLink;
-          linkBtn.textContent = 'Open Install Page';
-          linkBtn.target = '_blank';
-          linkBtn.rel = 'noopener noreferrer';
-          linkBtn.className = 'blue-card';
-
-          var closeBtn = document.createElement('button');
-          closeBtn.textContent = 'Close';
-          closeBtn.onclick = closePopup;
-          closeBtn.className = '';
-
-          card.appendChild(title);
-          card.appendChild(message);
-          card.appendChild(linkBtn);
-          card.appendChild(closeBtn);
-
-          popup.innerHTML = '';
-          popup.appendChild(card);
-          popup.classList.add('show');
-        } else {
-          throw new Error(data.error || 'Unknown error');
-        }
-        popup.classList.add('show');
-        button.disabled = false;
-        button.textContent = 'Sign IPA';
-      })
-      .catch(function(error) {
-        var closeBtn = document.createElement('button');
-        closeBtn.textContent = 'Close';
-        closeBtn.onclick = closePopup;
-
-        var errorP = document.createElement('p');
-        errorP.className = 'error';
-        errorP.textContent = error.message;
-
-        popup.innerHTML = '<h3>Error</h3>';
-        popup.appendChild(errorP);
-        popup.appendChild(closeBtn);
-        popup.classList.add('show');
-        button.disabled = false;
-        button.textContent = 'Sign IPA';
-      });
-    });
-
-    function closePopup() {
-      var popup = document.getElementById('popup');
-      popup.classList.remove('show');
-    }
-  </script>
 </body>
 </html>
