@@ -29,7 +29,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install cyan CLI from pyzule-rw
-RUN pip3 install --no-cache-dir pyzule-rw
+RUN pip3 install --no-cache-dir --break-system-packages pyzule-rw
 
 WORKDIR /app
 
