@@ -13,7 +13,9 @@ RUN apt-get update \
 
 WORKDIR /tmp
 RUN git clone --depth=1 https://github.com/zhlynn/zsign.git \
-    && make -C zsign
+    && cd zsign \
+    && cmake . \
+    && make
 
 FROM node:20-bookworm-slim
 
