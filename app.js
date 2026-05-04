@@ -19,10 +19,32 @@ const {
   RATE_LIMIT_WINDOW_MS = 900000,
   RATE_LIMIT_MAX = 100,
   LOG_LEVEL = 'info',
-  PUBLIC_DOMAIN = 'https://yourdomain.com',
+  PUBLIC_DOMAIN = '',
 } = process.env;
 
-const normalizedPublicDomain = PUBLIC_DOMAIN.endsWith('/') ? PUBLIC_DOMAIN : `${PUBLIC_DOMAIN}/`;
+function normalizeBaseUrl(value) {
+  const trimmed = (value || '').trim();
+  if (!trimmed) return '';
+  return trimmed.endsWith('/') ? trimmed : `${trimmed}/`;
+}
+
+function getPublicBaseUrl(req) {
+  const configuredBaseUrl = normalizeBaseUrl(PUBLIC_DOMAIN);
+  if (configuredBaseUrl) return configuredBaseUrl;
+
+  const forwardedProto = req.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  const forwardedHost = req.get('x-forwarded-host')?.split(',')[0]?.trim();
+  const protocol = forwardedProto || req.protocol || 'http';
+  const host = forwardedHost || req.get('host');
+
+  if (!host) return 'http://localhost:3000/';
+  return normalizeBaseUrl(`${protocol}://${host}`);
+}
+
+function buildPublicUrl(req, routePath) {
+  return new URL(routePath.startsWith('/') ? routePath : `/${routePath}`, getPublicBaseUrl(req)).toString();
+}
+
 const CYAN_CMD = process.env.CYAN_CMD || 'cyan';
 
 const WORK_DIR = path.join(__dirname, 'uploads');
@@ -45,6 +67,7 @@ const logger = winston.createLogger({
 logger.add(new winston.transports.Console({ format: winston.format.simple() }));
 
 const app = express();
+app.set('trust proxy', true);
 app.use(express.urlencoded({ extended: true, limit: '500mb' }));
 app.use(express.json({ limit: '500mb' }));
 app.use(cors());
@@ -258,15 +281,15 @@ app.post('/sign',
       const bundleVersion = plistData.CFBundleVersion || '1.0.0';
       const displayName = plistData.CFBundleDisplayName || plistData.CFBundleName || 'App';
 
-      const ipaUrl = `${normalizedPublicDomain}signed/${path.basename(signedIpaPath)}`;
+      const ipaUrl = buildPublicUrl(req, `signed/${path.basename(signedIpaPath)}`);
       const manifest = generateManifestPlist(ipaUrl, bundleId, bundleVersion, displayName);
       const plistFilename = `${sanitizeFilename(displayName)}_${uniqueSuffix}.plist`;
       const plistSavePath = path.join(WORK_DIR, 'plist', plistFilename);
       await fsp.writeFile(plistSavePath, manifest, 'utf8');
 
-      const manifestUrl = `${normalizedPublicDomain}plist/${plistFilename}`;
-      const directInstallLink = `itms-services://?action=download-manifest&url=${manifestUrl}`;
-      const installPageUrl = `${normalizedPublicDomain}install/${uniqueSuffix}`;
+      const manifestUrl = buildPublicUrl(req, `plist/${plistFilename}`);
+      const directInstallLink = `itms-services://?action=download-manifest&url=${encodeURIComponent(manifestUrl)}`;
+      const installPageUrl = buildPublicUrl(req, `install/${uniqueSuffix}`);
 
       metadataPath = path.join(WORK_DIR, 'temp', `${uniqueSuffix}.json`);
       const metadata = {
@@ -368,7 +391,7 @@ setInterval(cleanupUploads, CLEANUP_INTERVAL_MS);
 if (!global.serverStarted) {
   app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
-    logger.info(`Public domain: ${normalizedPublicDomain}`);
+    logger.info(`Public domain: ${normalizeBaseUrl(PUBLIC_DOMAIN) || 'derived from request host'}`);
     global.serverStarted = true;
   });
 }
