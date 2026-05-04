@@ -1,10 +1,10 @@
 :root {
-  --bg: #f6f7fb;
-  --surface: #ffffff;
-  --text: #1f2937;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --accent: #2563eb;
+  --bg: #0b1220;
+  --surface: #111a2b;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --border: #1f2a44;
+  --accent: #60a5fa;
 }
 
 * { box-sizing: border-box; }
@@ -43,7 +43,7 @@ body {
 }
 
 .nav a:hover, .nav a.active {
-  background: #eef2ff;
+  background: #17233a;
   color: var(--accent);
 }
 
@@ -67,7 +67,7 @@ p { line-height: 1.6; color: #374151; }
 }
 
 code {
-  background: #f3f4f6;
+  background: #1f2937;
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -93,6 +93,9 @@ th, td {
 }
 
 th { background: #f9fafb; }
+
+p { color: #d1d5db; }
+th { background: #0f172a; }
 
 .muted { color: var(--muted); }
 
