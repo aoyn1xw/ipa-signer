@@ -1,6 +1,6 @@
-# iOS Singer
+# IPA Signer
 
-**iOS Singer** is a fast, web-based and API-enabled iOS IPA file signing server. Upload an IPA file, your signing certificate (**.p12**) and provisioning profile (**.mobileprovision**), and receive a signed IPA ready for installation via an OTA link—all in your browser or programmatically via HTTP.
+**IPA Signer** is a fast, web-based and API-enabled iOS IPA file signing server. Upload an IPA file, your signing certificate (**.p12**) and provisioning profile (**.mobileprovision**), and receive a signed IPA ready for installation via an OTA link—all in your browser or programmatically via HTTP.
 
 ---
 
@@ -20,7 +20,7 @@
 
 ## Test it out
 
-Try it at: **[https://sign.ayon1xw.me/](https://sign.ayon1xw.me/)**
+Try it at: **comming soon**
 
 ---
 
@@ -38,8 +38,8 @@ Try it at: **[https://sign.ayon1xw.me/](https://sign.ayon1xw.me/)**
 Clone the repository:
 
 ```bash
-git clone https://github.com/aoyn1xw/ios-singer.git
-cd ios-singer
+git clone https://github.com/aoyn1xw/ipa-signer.git
+cd ipa-signer
 npm install
 ```
 
@@ -110,8 +110,8 @@ curl -X POST https://sign.ayon1xw.me/sign \
 
 ```json
 {
-  "installLink": "https://sign.ayon1xw.me/install/XXXXXXXXXXXXXXXXX",
-  "directInstallLink": "itms-services://?action=download-manifest&url=https://sign.ayon1xw.me/plist/APP_xxxxxxx.plist"
+  "installLink": "https://yourdomain.com/install/XXXXXXXXXXXXXXXXX",
+  "directInstallLink": "itms-services://?action=download-manifest&url=https://yourdomain.com/plist/APP_xxxxxxx.plist"
 }
 ```
 
