@@ -49,6 +49,7 @@ Set up your environment variables (optional):
 - `RATE_LIMIT_WINDOW_MS` : Rate limiting interval (default: 900,000ms)
 - `RATE_LIMIT_MAX` : Max requests per interval (default: 100)
 - `CYAN_CMD` : Path/name for the `cyan` CLI (default: `cyan`)
+- `PUBLIC_DOMAIN` : Public base URL used in generated install/plist links (default: `https://yourdomain.com`)
 
 Start the server:
 
@@ -96,7 +97,7 @@ Advanced tweak fields:
 #### Example using `curl`:
 
 ```bash
-curl -X POST https://sign.ayon1xw.me/sign \
+curl -X POST https://yourdomain.com/sign \
   -F "ipa=@your/app.ipa" \
   -F "p12=@your/certificate.p12" \
   -F "mobileprovision=@your/profile.mobileprovision" \

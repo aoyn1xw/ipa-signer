@@ -19,9 +19,10 @@ const {
   RATE_LIMIT_WINDOW_MS = 900000,
   RATE_LIMIT_MAX = 100,
   LOG_LEVEL = 'info',
+  PUBLIC_DOMAIN = 'https://yourdomain.com',
 } = process.env;
 
-const PUBLIC_DOMAIN = 'https://sign.ayon1xw.me/'; // always use this domain
+const normalizedPublicDomain = PUBLIC_DOMAIN.endsWith('/') ? PUBLIC_DOMAIN : `${PUBLIC_DOMAIN}/`;
 const CYAN_CMD = process.env.CYAN_CMD || 'cyan';
 
 const WORK_DIR = path.join(__dirname, 'uploads');
@@ -257,15 +258,15 @@ app.post('/sign',
       const bundleVersion = plistData.CFBundleVersion || '1.0.0';
       const displayName = plistData.CFBundleDisplayName || plistData.CFBundleName || 'App';
 
-      const ipaUrl = `${PUBLIC_DOMAIN}signed/${path.basename(signedIpaPath)}`;
+      const ipaUrl = `${normalizedPublicDomain}signed/${path.basename(signedIpaPath)}`;
       const manifest = generateManifestPlist(ipaUrl, bundleId, bundleVersion, displayName);
       const plistFilename = `${sanitizeFilename(displayName)}_${uniqueSuffix}.plist`;
       const plistSavePath = path.join(WORK_DIR, 'plist', plistFilename);
       await fsp.writeFile(plistSavePath, manifest, 'utf8');
 
-      const manifestUrl = `${PUBLIC_DOMAIN}plist/${plistFilename}`;
+      const manifestUrl = `${normalizedPublicDomain}plist/${plistFilename}`;
       const directInstallLink = `itms-services://?action=download-manifest&url=${manifestUrl}`;
-      const installPageUrl = `${PUBLIC_DOMAIN}install/${uniqueSuffix}`;
+      const installPageUrl = `${normalizedPublicDomain}install/${uniqueSuffix}`;
 
       metadataPath = path.join(WORK_DIR, 'temp', `${uniqueSuffix}.json`);
       const metadata = {
@@ -367,7 +368,7 @@ setInterval(cleanupUploads, CLEANUP_INTERVAL_MS);
 if (!global.serverStarted) {
   app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
-    logger.info(`Public domain: ${PUBLIC_DOMAIN}`);
+    logger.info(`Public domain: ${normalizedPublicDomain}`);
     global.serverStarted = true;
   });
 }
