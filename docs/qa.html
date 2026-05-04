@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Q&A - IPA Signer Wiki</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">IPA Signer Wiki</div>
+      <nav class="nav">
+        <a href="index.html">Overview</a>
+        <a href="getting-started.html">Getting Started</a>
+        <a href="api.html">API Reference</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="customization.html">Customization</a>
+        <a class="active" href="qa.html">Q&A</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>Q&amp;A</h1>
+
+      <div class="card">
+        <h2>Q: Why do I get “P12 and MobileProvision required”?</h2>
+        <p>A: <code>/sign</code> requires all three files: IPA, P12, and MobileProvision. Verify multipart field names are exactly <code>ipa</code>, <code>p12</code>, and <code>mobileprovision</code>.</p>
+      </div>
+
+      <div class="card">
+        <h2>Q: Why does install link open but app will not install?</h2>
+        <p>A: Usually <code>PUBLIC_DOMAIN</code> is wrong or not publicly reachable over HTTPS. The device must download both plist and IPA from that domain.</p>
+      </div>
+
+      <div class="card">
+        <h2>Q: What does “cyan not found” mean?</h2>
+        <p>A: The server tried advanced tweaks but could not execute cyan. Install cyan or set <code>CYAN_CMD</code> to the correct binary path.</p>
+      </div>
+
+      <div class="card">
+        <h2>Q: Can I disable advanced tweaks and only sign?</h2>
+        <p>A: Yes. Don’t send any <code>adv_*</code> fields. The server will sign directly with zsign.</p>
+      </div>
+
+      <div class="card">
+        <h2>Q: How long do generated install links stay valid?</h2>
+        <p>A: One hour. Metadata and artifacts are cleaned up automatically after expiry.</p>
+      </div>
+
+      <div class="card">
+        <h2>Q: How do I make uploads safer?</h2>
+        <p>A: Lower max request rate, run behind authentication/reverse proxy, and isolate storage volumes for uploaded secrets.</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

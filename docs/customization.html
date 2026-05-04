@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customization - IPA Signer Wiki</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">IPA Signer Wiki</div>
+      <nav class="nav">
+        <a href="index.html">Overview</a>
+        <a href="getting-started.html">Getting Started</a>
+        <a href="api.html">API Reference</a>
+        <a href="architecture.html">Architecture</a>
+        <a class="active" href="customization.html">Customization</a>
+        <a href="qa.html">Q&A</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>Basic Customization</h1>
+      <p>This page covers the most common changes without modifying business logic.</p>
+
+      <div class="card">
+        <h2>1) Change server port</h2>
+        <p>Set <code>PORT</code> at runtime.</p>
+        <pre><code>PORT=8080 node app.js</code></pre>
+      </div>
+
+      <div class="card">
+        <h2>2) Change public install domain</h2>
+        <p>Set <code>PUBLIC_DOMAIN</code>. Always use HTTPS and include your final host.</p>
+        <pre><code>PUBLIC_DOMAIN=https://sign.example.com/ node app.js</code></pre>
+      </div>
+
+      <div class="card">
+        <h2>3) Tune rate limiting</h2>
+        <pre><code>RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100</code></pre>
+        <p>Example for stricter settings:</p>
+        <pre><code>RATE_LIMIT_WINDOW_MS=60000
+RATE_LIMIT_MAX=20</code></pre>
+      </div>
+
+      <div class="card">
+        <h2>4) Change cyan executable path</h2>
+        <p>If <code>cyan</code> is not on PATH:</p>
+        <pre><code>CYAN_CMD=/usr/local/bin/cyan node app.js</code></pre>
+      </div>
+
+      <div class="card">
+        <h2>5) Update UI text/branding</h2>
+        <p>Edit the upload UI in <code>index.html</code> and style it in <code>style.css</code>.</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

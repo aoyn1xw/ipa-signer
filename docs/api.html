@@ -15,6 +15,8 @@
         <a href="getting-started.html">Getting Started</a>
         <a class="active" href="api.html">API Reference</a>
         <a href="architecture.html">Architecture</a>
+        <a href="customization.html">Customization</a>
+        <a href="qa.html">Q&A</a>
       </nav>
     </aside>
     <main class="content">
@@ -61,6 +63,16 @@
   "directInstallLink": "itms-services://?action=download-manifest&url=https://domain/plist/app.plist"
 }</code></pre>
 
+        <h3>HTTP status behavior</h3>
+        <table>
+          <thead><tr><th>Status</th><th>When</th></tr></thead>
+          <tbody>
+            <tr><td><code>200</code></td><td>Sign + manifest generation succeeds</td></tr>
+            <tr><td><code>400</code></td><td>Missing required files, invalid option combinations</td></tr>
+            <tr><td><code>500</code></td><td>Signing, parsing, worker, or filesystem errors</td></tr>
+          </tbody>
+        </table>
+
         <h3>Error response</h3>
         <pre><code>{
   "error": "Signing failed",
@@ -71,6 +83,14 @@
       <div class="card">
         <h2>GET /install/:id</h2>
         <p>Returns a simple install page for a signed build. Link expires after one hour.</p>
+        <table>
+          <thead><tr><th>Status</th><th>When</th></tr></thead>
+          <tbody>
+            <tr><td><code>200</code></td><td>Install metadata exists and is not expired</td></tr>
+            <tr><td><code>404</code></td><td>Metadata is missing</td></tr>
+            <tr><td><code>410</code></td><td>Metadata exists but expired</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="card">

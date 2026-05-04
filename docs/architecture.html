@@ -15,6 +15,8 @@
         <a href="getting-started.html">Getting Started</a>
         <a href="api.html">API Reference</a>
         <a class="active" href="architecture.html">Architecture</a>
+        <a href="customization.html">Customization</a>
+        <a href="qa.html">Q&A</a>
       </nav>
     </aside>
     <main class="content">
@@ -48,6 +50,8 @@
           <li>Rate limiting is global and controlled by env vars.</li>
           <li>Generated install links and artifacts are intentionally short-lived.</li>
           <li>Set <code>PUBLIC_DOMAIN</code> correctly in production; install URLs depend on it.</li>
+          <li>Cleanup timer removes stale files in temp/cert/profile folders every 5 minutes.</li>
+          <li>Signing executes in a worker thread to avoid blocking the main request loop.</li>
         </ul>
       </div>
     </main>
