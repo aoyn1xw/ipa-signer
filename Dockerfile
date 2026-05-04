@@ -28,8 +28,8 @@ RUN apt-get update \
       libminizip1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install cyan CLI from pyzule-rw
-RUN pip3 install --no-cache-dir --break-system-packages pyzule-rw
+# Install cyan CLI from pyzule-rw (not published to PyPI, install from GitHub)
+RUN pip3 install --no-cache-dir --break-system-packages https://github.com/asdfzxcvbn/pyzule-rw/archive/refs/tags/v1.4.4.zip
 
 WORKDIR /app
 
