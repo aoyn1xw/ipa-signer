@@ -145,6 +145,7 @@ curl -X POST https://sign.ayon1xw.me/sign \
 ## Credits
 
 - [zsign](https://github.com/zhlynn/zsign): Fast IPA resigning used under the hood.
+- [pyzule-rw](https://github.com/asdfzxcvbn/pyzule-rw): For modfying the IPA on the fly
 
 ---
 
