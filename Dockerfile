@@ -46,8 +46,7 @@ RUN chmod +x /usr/local/bin/zsign
 RUN mkdir -p /app/uploads/p12 /app/uploads/mp /app/uploads/temp /app/uploads/signed /app/uploads/plist /app/logs
 
 ENV NODE_ENV=production \
-    PORT=3000 \
-    PUBLIC_DOMAIN=http://localhost:3000
+  PORT=3000
 
 EXPOSE 3000
 

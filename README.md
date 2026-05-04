@@ -32,6 +32,7 @@ Try it at: **comming soon**
 - `zsign` binary available in `$PATH` or in the project folder
 - `cyan` (pyzule-rw) CLI in `$PATH` if you want advanced IPA tweaks before signing
 - Unix-like system recommended
+- `PUBLIC_DOMAIN` is optional; when omitted, the app builds install links from the incoming host/proxy headers.
 
 ### 2. Install & Run
 
@@ -49,7 +50,7 @@ Set up your environment variables (optional):
 - `RATE_LIMIT_WINDOW_MS` : Rate limiting interval (default: 900,000ms)
 - `RATE_LIMIT_MAX` : Max requests per interval (default: 100)
 - `CYAN_CMD` : Path/name for the `cyan` CLI (default: `cyan`)
-- `PUBLIC_DOMAIN` : Public base URL used in generated install/plist links (default: `https://yourdomain.com`)
+- `PUBLIC_DOMAIN` : Optional public base URL used in generated install/plist links. Leave blank to auto-detect from the request host.
 
 Start the server:
 
@@ -80,6 +81,16 @@ docker run --rm -p 3000:3000 \
 ```
 
 > This image installs both `zsign` and `cyan` (`pyzule-rw`) so signing and advanced tweaks work out of the box.
+
+### 4. Publish to GHCR
+
+The repository includes a GitHub Actions workflow that publishes the image to GitHub Container Registry as `ghcr.io/aoyn1xw/ipa-signer` on pushes to `main`, tags, or a manual workflow run.
+
+If you want to consume the published image directly:
+
+```bash
+docker pull ghcr.io/aoyn1xw/ipa-signer:latest
+```
 
 ---
 
