@@ -1,72 +1,69 @@
 # IPA Signer
 
-**IPA Signer** is a fast, web-based and API-enabled iOS IPA file signing server. Upload an IPA file, your signing certificate (**.p12**) and provisioning profile (**.mobileprovision**), and receive a signed IPA ready for installation via an OTA link—all in your browser or programmatically via HTTP.
+[![Docker Image](https://img.shields.io/badge/ghcr.io-aoyn1xw%2Fipa--signer-blue?logo=docker)](https://github.com/aoyn1xw/ipa-signer/pkgs/container/ipa-signer)
+[![License](https://img.shields.io/github/license/aoyn1xw/ipa-signer)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D16-brightgreen?logo=node.js)](https://nodejs.org)
+
+**IPA Signer** is a fast, web-based and API-enabled iOS IPA file signing server. Upload an IPA file, your signing certificate (**.p12**) and provisioning profile (**.mobileprovision**), and receive a signed IPA ready for OTA installation — all from your browser or programmatically via HTTP.
 
 ---
 
 ## Features
 
-- **Sign iOS IPAs online:** Simple form or API for signing your iOS apps.
-- **OTA install links:** Get an iOS-friendly install link for your re-signed IPA.
-- **No account required:** No user authentication on the public deployment.
-- **Fast and stable:** Uses `zsign` in a worker thread for performance.
-- **Large file support:** Accepts uploads up to 500MB.
-- **Modern UI:** Responsive, dark/light mode, mobile compatible.
-- **Automated cleanup:** Old uploads are deleted periodically.
-- **API ready:** Integrate programmatically with a single HTTP request.
-- **Advanced IPA tweaks:** Optional name/version/bundle id edits and common cleanup toggles before signing.
+- 🔏 **Sign iOS IPAs online** — simple web form or API endpoint
+- 📲 **OTA install links** — iOS-friendly `itms-services://` links generated instantly
+- 🔧 **Advanced IPA tweaks** — edit bundle ID, app name, version, minimum OS, and more before signing
+- 🚀 **Fast & non-blocking** — `zsign` runs in a worker thread to keep the server responsive
+- 📦 **Large file support** — accepts uploads up to 500 MB
+- 🎨 **Modern UI** — responsive, dark/light mode, mobile-friendly
+- 🔁 **Auto cleanup** — uploaded files expire and are deleted automatically after ~1 hour
+- 🌐 **API ready** — integrate signing into your own pipeline with a single `curl` command
+- 🐳 **Docker support** — includes `zsign` and `cyan` out of the box
 
 ---
 
 ## Getting Started
 
-### 1. Requirements (for self-hosting)
+### Requirements (self-hosted)
 
 - Node.js 16+
-- `zsign` binary available in `$PATH` or in the project folder
-- `cyan` (pyzule-rw) CLI in `$PATH` if you want advanced IPA tweaks before signing
-- Unix-like system recommended
-- `PUBLIC_DOMAIN` is optional; when omitted, the app builds install links from the incoming host/proxy headers.
+- [`zsign`](https://github.com/zhlynn/zsign) binary available in `$PATH` or in the project folder
+- [`cyan`](https://github.com/asdfzxcvbn/pyzule-rw) (`pyzule-rw`) CLI in `$PATH` — only needed for advanced IPA tweaks
+- Unix-like system (Linux / macOS recommended)
 
-### 2. Install & Run
-
-Clone the repository:
+### Install & Run
 
 ```bash
 git clone https://github.com/aoyn1xw/ipa-signer.git
 cd ipa-signer
 npm install
-```
-
-Set up your environment variables (optional):
-
-- `PORT` : HTTP port to listen on (default: `3000`)
-- `RATE_LIMIT_WINDOW_MS` : Rate limiting interval (default: 900,000ms)
-- `RATE_LIMIT_MAX` : Max requests per interval (default: 100)
-- `CYAN_CMD` : Path/name for the `cyan` CLI (default: `cyan`)
-- `PUBLIC_DOMAIN` : Optional public base URL used in generated install/plist links. Leave blank to auto-detect from the request host.
-
-Start the server:
-
-```bash
 node app.js
 ```
 
-The server will be accessible at [http://localhost:3000](http://localhost:3000).
+The server starts at [http://localhost:3000](http://localhost:3000) by default.
 
+### Environment Variables
 
+Copy `.env.example` to `.env` and adjust as needed:
 
-### 3. Run with Docker
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `3000` | HTTP port to listen on |
+| `RATE_LIMIT_WINDOW_MS` | `900000` | Rate limiting window in ms (15 min) |
+| `RATE_LIMIT_MAX` | `100` | Max requests per rate limit window |
+| `LOG_LEVEL` | `info` | Logging verbosity (`debug`, `info`, `warn`, `error`) |
+| `CYAN_CMD` | `cyan` | Path or command name for the `cyan` CLI |
+| `PUBLIC_DOMAIN` | *(auto)* | Public base URL for install/plist links. Leave blank to auto-detect from request headers. |
 
-Build the image:
+---
+
+## Run with Docker
+
+Build and run locally:
 
 ```bash
 docker build -t ipa-signer .
-```
 
-Run the container:
-
-```bash
 docker run --rm -p 3000:3000 \
   -e PUBLIC_DOMAIN=http://localhost:3000 \
   -v "$(pwd)/uploads:/app/uploads" \
@@ -74,67 +71,68 @@ docker run --rm -p 3000:3000 \
   ipa-signer
 ```
 
-> This image installs both `zsign` and `cyan` (`pyzule-rw`) so signing and advanced tweaks work out of the box.
-
-### 4. Publish to GHCR
-
-The repository includes a GitHub Actions workflow that publishes the image to GitHub Container Registry as `ghcr.io/aoyn1xw/ipa-signer` on pushes to `main`, tags, or a manual workflow run.
-
-If you want to consume the published image directly:
+Or pull the pre-built image from GHCR:
 
 ```bash
 docker pull ghcr.io/aoyn1xw/ipa-signer:latest
+
+docker run --rm -p 3000:3000 \
+  -e PUBLIC_DOMAIN=https://yourdomain.com \
+  ghcr.io/aoyn1xw/ipa-signer:latest
 ```
 
----
+> The Docker image includes both `zsign` and `cyan` — no extra setup needed.
 
-## Using the Web Interface
-
-1. **Open** the web UI in your browser.
-2. **Upload**:
-   - IPA file (.ipa)
-   - P12 certificate (.p12)
-   - Provisioning profile (.mobileprovision)
-   - Optionally, provide your P12 password (if set).
-   - Optionally, expand Advanced to tweak the app before signing.
-3. **Click** "Sign IPA". Wait for processing.
-4. **Receive**:
-   - Page with iOS install link.
-   - `itms-services` direct link for device installation.
+The included GitHub Actions workflow automatically publishes to `ghcr.io/aoyn1xw/ipa-signer` on pushes to `main`, version tags, or manual workflow runs.
 
 ---
 
-## Using the API
+## Web UI
 
-You can sign IPAs programmatically using the `/sign` API endpoint.
+1. Open the web UI in your browser.
+2. Upload your **IPA**, **P12 certificate**, and **provisioning profile**.
+3. Optionally provide the P12 password and expand **Advanced** to tweak the app before signing.
+4. Click **Sign IPA** and wait for processing.
+5. Receive a page with an OTA install link and direct `itms-services://` link.
 
-### Endpoint
+---
 
-- **URL:** `/sign`
-- **Method:** `POST`
-- **Content-Type:** `multipart/form-data`
-- **Required fields:** `ipa`, `p12`, `mobileprovision`
-- **Optional fields:** `p12_password`, advanced tweak fields (see below)
+## API
 
-Advanced tweak fields:
-- `adv_name`, `adv_version`, `adv_bundle_id`, `adv_min_os`
-- `adv_remove_supported_devices`, `adv_no_watch`, `adv_fakesign`, `adv_thin`
-- `adv_remove_extensions`, `adv_remove_encrypted`
+Sign IPAs programmatically via the `/sign` endpoint.
 
-#### Example using `curl`:
+**`POST /sign`** — `multipart/form-data`
+
+| Field | Required | Description |
+|---|---|---|
+| `ipa` | ✅ | The `.ipa` file to sign |
+| `p12` | ✅ | P12 signing certificate |
+| `mobileprovision` | ✅ | Provisioning profile |
+| `p12_password` | — | Password for the P12 (if set) |
+| `adv_name` | — | Override app display name |
+| `adv_version` | — | Override app version string |
+| `adv_bundle_id` | — | Override bundle identifier |
+| `adv_min_os` | — | Override minimum iOS version |
+| `adv_remove_supported_devices` | — | Strip supported device list |
+| `adv_no_watch` | — | Remove WatchKit extensions |
+| `adv_fakesign` | — | Fake-sign (skip real certificate) |
+| `adv_thin` | — | Thin the IPA to a single architecture |
+| `adv_remove_extensions` | — | Strip app extensions |
+| `adv_remove_encrypted` | — | Remove encrypted binaries |
+
+### Example
 
 ```bash
 curl -X POST https://yourdomain.com/sign \
-  -F "ipa=@your/app.ipa" \
-  -F "p12=@your/certificate.p12" \
-  -F "mobileprovision=@your/profile.mobileprovision" \
+  -F "ipa=@app.ipa" \
+  -F "p12=@certificate.p12" \
+  -F "mobileprovision=@profile.mobileprovision" \
   -F "p12_password=yourpassword" \
-  -F "adv_name=New Name" \
-  -F "adv_bundle_id=com.example.app" \
-  -F "adv_remove_supported_devices=on"
+  -F "adv_name=My App" \
+  -F "adv_bundle_id=com.example.myapp"
 ```
 
-#### Success Response
+### Success Response
 
 ```json
 {
@@ -147,29 +145,34 @@ curl -X POST https://yourdomain.com/sign \
 
 ## Project Structure
 
-- `app.js` — Node.js server, Express API, file handling, main logic
-- `zsign-worker.js` — Worker thread to run `zsign` binary for IPA signing
-- `index.html` — Modern web UI
-- `style.css` — Interface styling
-- `/uploads` — (auto-created) Temporary file storage
+```
+ipa-signer/
+├── app.js              # Express server, API routes, file handling
+├── zsign-worker.js     # Worker thread running the zsign binary
+├── index.html          # Web UI
+├── style.css           # UI styles
+├── Dockerfile          # Docker build (includes zsign + cyan)
+├── Procfile            # Heroku/railway process file
+├── .env.example        # Example environment config
+└── uploads/            # Auto-created — temporary file storage
+```
 
 ---
 
 ## Security Notes
 
-- **Files and links expire** after roughly 1 hour.
-- Inputs are validated by file type and size.
-- Rate limiting is enforced.
-- For sensitive use/self-hosting: run securely (behind HTTPS, with authentication; current public version is for demo/low-trust use).
-
+- Signed files and install links **expire after ~1 hour** and are deleted automatically.
+- File uploads are validated by type and size.
+- Rate limiting is enforced per IP.
+- For production or sensitive use: run behind HTTPS and consider adding authentication — the current public deployment is intended for demo/low-trust use only.
 
 ---
 
 ## Credits
 
-- [zsign](https://github.com/zhlynn/zsign): Fast IPA resigning used under the hood.
-- [pyzule-rw](https://github.com/asdfzxcvbn/pyzule-rw): For modfying the IPA on the fly
+- [zsign](https://github.com/zhlynn/zsign) — fast IPA re-signing engine
+- [pyzule-rw](https://github.com/asdfzxcvbn/pyzule-rw) — IPA modification toolkit (`cyan` CLI)
 
 ---
 
-**Enjoy one of the fastest, simplest iOS signing pipelines available!**
+*One of the fastest, simplest iOS signing pipelines available.*
