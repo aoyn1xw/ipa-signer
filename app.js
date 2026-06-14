@@ -94,6 +94,83 @@ app.use('/plist', express.static(path.join(WORK_DIR, 'plist')));
 app.get('/style.css', (req, res) => res.sendFile(path.join(__dirname, 'style.css')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
+app.get('/help', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Help - IPA Signer</title>
+        <link rel="stylesheet" href="/style.css">
+      </head>
+      <body>
+        <button class="toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          </svg>
+        </button>
+
+        <main class="page">
+          <div class="container">
+            <div class="card install-info">
+              <div class="header-icon" style="margin-bottom: 24px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </div>
+              <h1 style="margin-bottom: 16px;">Help & Documentation</h1>
+              <p class="install-meta" style="margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5; max-width: 100%; display: block; background: rgba(0,0,0,0.015); border: 1.5px solid var(--border); padding: 16px; border-radius: var(--radius-sm); text-align: left;">
+                its the readme on github and also that you can customie the html however you all
+              </p>
+              <a href="https://github.com/aoyn1xw/ipa-signer#readme" class="btn-link" target="_blank" rel="noopener noreferrer">View GitHub Readme</a>
+              <a href="/" class="btn-secondary" style="margin-top: 12px; display: block; text-decoration: none; text-align: center; line-height: 1.2;">Go Back Home</a>
+            </div>
+          </div>
+        </main>
+
+        <script>
+          const themeToggle = document.getElementById('themeToggle');
+          const themeIcon = document.getElementById('themeIcon');
+          const body = document.body;
+          const currentTheme = localStorage.getItem('theme') || 'light';
+          
+          body.setAttribute('data-theme', currentTheme);
+          updateThemeIcon(currentTheme);
+
+          themeToggle.addEventListener('click', function() {
+            const newTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+          });
+
+          function updateThemeIcon(theme) {
+            if (theme === 'dark') {
+              themeIcon.innerHTML = \`
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              \`;
+            } else {
+              themeIcon.innerHTML = \`
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              \`;
+            }
+          }
+        </script>
+      </body>
+    </html>
+  `);
+});
+
 const upload = multer({
   dest: path.join(WORK_DIR, 'temp'),
   limits: { fileSize: 500 * 1024 * 1024 }, // 500MB
@@ -339,21 +416,25 @@ app.get('/install/:id', async (req, res) => {
   }
 
   res.send(`
-    <html>
+    <!DOCTYPE html>
+    <html lang="en">
       <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Install ${data.displayName}</title>
         <link rel="stylesheet" href="/style.css">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body>
-        <div class="container signer">
-          <div class="card">
-            <h1>${data.displayName}</h1>
-            <div>Version: <b>${data.bundleVersion}</b></div>
-            <div style="margin-bottom:18px">Bundle ID: <b>${data.bundleId}</b></div>
-            <a href="${data.installLink}" class="blue-card">Install on iOS</a>
+        <main class="page">
+          <div class="container">
+            <div class="card install-info">
+              <h1>${data.displayName}</h1>
+              <p class="install-meta">Version <b>${data.bundleVersion}</b></p>
+              <p class="install-meta">Bundle ID <b>${data.bundleId}</b></p>
+              <a href="${data.installLink}" class="btn-link">Install on iOS</a>
+            </div>
           </div>
-        </div>
+        </main>
       </body>
     </html>
   `);
