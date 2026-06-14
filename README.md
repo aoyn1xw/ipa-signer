@@ -18,12 +18,6 @@
 
 ---
 
-## Test it out
-
-Try it at: **comming soon**
-
----
-
 ## Getting Started
 
 ### 1. Requirements (for self-hosting)
