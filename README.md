@@ -162,11 +162,6 @@ curl -X POST https://yourdomain.com/sign \
 - Rate limiting is enforced.
 - For sensitive use/self-hosting: run securely (behind HTTPS, with authentication; current public version is for demo/low-trust use).
 
----
-
-## License
-
-*(Specify your license here, e.g. MIT, GPL, or "proprietary/private")*
 
 ---
 
