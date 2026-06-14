@@ -1,0 +1,45 @@
+name: Bug report
+about: Create a bug report to help improve IPA Signer
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: description
+    attributes:
+      label: Bug description
+      description: What happened?
+      placeholder: Tell us what you saw
+    validations:
+      required: true
+  - type: input
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: How do you reproduce this?
+      placeholder: "1. Open ...\n2. Upload ...\n3. Click ..."
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Where does this happen? (self-hosted, Docker, OS, Node version)
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Error output
+      description: Paste any relevant logs or error messages
+      render: shell
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

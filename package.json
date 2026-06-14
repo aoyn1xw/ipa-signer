@@ -1,7 +1,22 @@
 {
   "name": "ipa-signer",
   "version": "1.0.0",
+  "description": "Web-based iOS IPA signing server",
   "main": "app.js",
+  "author": "aoyn1xw",
+  "license": "MIT",
+  "homepage": "https://github.com/aoyn1xw/ipa-signer#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aoyn1xw/ipa-signer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aoyn1xw/ipa-signer/issues"
+  },
+  "keywords": ["ipa", "ios", "signer", "signing", "zsign", "ota"],
+  "engines": {
+    "node": ">=16"
+  },
   "scripts": {
     "start": "node app.js"
   },
