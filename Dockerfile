@@ -62,12 +62,15 @@ RUN chmod +x /usr/local/bin/zsign
 RUN zsign -v
 
 # Ensure required directories exist for the app logic
-RUN mkdir -p /app/uploads/p12 /app/uploads/mp /app/uploads/temp /app/uploads/signed /app/uploads/plist /app/logs
+RUN mkdir -p /app/uploads/p12 /app/uploads/mp /app/uploads/temp /app/uploads/signed /app/uploads/plist /app/uploads/metadata /app/logs \
+    && chown -R node:node /app/uploads /app/logs
 
 # Set production environment variables
 ENV NODE_ENV=production \
     PORT=3000
 
 EXPOSE 3000
+
+USER node
 
 CMD ["npm", "start"]
