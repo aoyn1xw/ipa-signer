@@ -67,16 +67,26 @@ const logger = winston.createLogger({
 logger.add(new winston.transports.Console({ format: winston.format.simple() }));
 
 const app = express();
-app.set('trust proxy', true);
+app.set('trust proxy', process.env.RENDER === 'true');
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(express.json({ limit: '1mb' }));
 app.use(cors());
+
+function getRateLimitKey(req) {
+  if (process.env.RENDER === 'true') {
+    const forwardedFor = req.get('x-forwarded-for');
+    if (forwardedFor) return forwardedFor.split(',')[0].trim();
+  }
+
+  return req.ip || req.socket.remoteAddress || 'unknown';
+}
 
 const limiter = rateLimit({
   windowMs: parseInt(RATE_LIMIT_WINDOW_MS, 10),
   max: parseInt(RATE_LIMIT_MAX, 10),
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: getRateLimitKey,
 });
 app.use(limiter);
 
@@ -90,6 +100,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/signed', express.static(path.join(WORK_DIR, 'signed')));
 app.use('/plist', express.static(path.join(WORK_DIR, 'plist')));
 
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.get('/style.css', (req, res) => res.sendFile(path.join(__dirname, 'style.css')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
