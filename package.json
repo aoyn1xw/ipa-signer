@@ -15,7 +15,7 @@
   },
   "keywords": ["ipa", "ios", "signer", "signing", "zsign", "ota"],
   "engines": {
-    "node": ">=16"
+    "node": ">=22"
   },
   "scripts": {
     "start": "node app.js"
