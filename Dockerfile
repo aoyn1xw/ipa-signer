@@ -24,7 +24,7 @@ RUN git clone https://github.com/zhlynn/zsign.git \
     && test -x /tmp/zsign/bin/zsign
 
 # Stage 2: Final Runtime Image
-FROM node:20-bookworm-slim
+FROM node:24-bookworm-slim
 
 # Runtime dependencies
 # These are necessary for the compiled zsign binary and python scripts to run
