@@ -10,7 +10,7 @@ const plist = require('plist');
 const bplistParser = require('bplist-parser');
 const cors = require('cors');
 const crypto = require('crypto');
-const rateLimit = require('express-rate-limit');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const winston = require('winston');
 const { spawn } = require('child_process');
 
@@ -73,12 +73,14 @@ app.use(express.json({ limit: '1mb' }));
 app.use(cors());
 
 function getRateLimitKey(req) {
+  let clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+
   if (process.env.RENDER === 'true') {
     const forwardedFor = req.get('x-forwarded-for');
-    if (forwardedFor) return forwardedFor.split(',')[0].trim();
+    if (forwardedFor) clientIp = forwardedFor.split(',')[0].trim();
   }
 
-  return req.ip || req.socket.remoteAddress || 'unknown';
+  return ipKeyGenerator(clientIp);
 }
 
 const limiter = rateLimit({
@@ -87,6 +89,7 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: getRateLimitKey,
+  skip: (req) => req.path === '/health',
 });
 app.use(limiter);
 
