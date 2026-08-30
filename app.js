@@ -19,7 +19,7 @@ const {
   RATE_LIMIT_WINDOW_MS = 900000,
   RATE_LIMIT_MAX = 100,
   LOG_LEVEL = 'info',
-  PUBLIC_DOMAIN = '',
+  PUBLIC_DOMAIN = process.env.RENDER_EXTERNAL_URL || '',
 } = process.env;
 
 function normalizeBaseUrl(value) {
@@ -522,7 +522,7 @@ app.use((err, req, res, next) => {
 });
 
 if (!global.serverStarted) {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     logger.info(`Server running on port ${PORT}`);
     logger.info(`Public domain: ${normalizeBaseUrl(PUBLIC_DOMAIN) || 'derived from request host'}`);
     global.serverStarted = true;
