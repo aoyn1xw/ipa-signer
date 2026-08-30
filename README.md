@@ -2,7 +2,7 @@
 
 [![Docker Image](https://img.shields.io/badge/ghcr.io-aoyn1xw%2Fipa--signer-blue?logo=docker)](https://github.com/aoyn1xw/ipa-signer/pkgs/container/ipa-signer)
 [![License](https://img.shields.io/github/license/aoyn1xw/ipa-signer)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D16-brightgreen?logo=node.js)](https://nodejs.org)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D22-brightgreen?logo=node.js)](https://nodejs.org)
 
 **IPA Signer** is a fast, web-based and API-enabled iOS IPA file signing server. Upload an IPA file, your signing certificate (**.p12**) and provisioning profile (**.mobileprovision**), and receive a signed IPA ready for OTA installation — all from your browser or programmatically via HTTP.
 
@@ -26,7 +26,7 @@
 
 ### Requirements (self-hosted)
 
-- Node.js 16+
+- Node.js 22+
 - [`zsign`](https://github.com/zhlynn/zsign) binary available in `$PATH` or in the project folder
 - [`cyan`](https://github.com/asdfzxcvbn/pyzule-rw) (`pyzule-rw`) CLI in `$PATH` — only needed for advanced IPA tweaks
 - Unix-like system (Linux / macOS recommended)
@@ -53,7 +53,7 @@ Copy `.env.example` to `.env` and adjust as needed:
 | `RATE_LIMIT_MAX` | `100` | Max requests per rate limit window |
 | `LOG_LEVEL` | `info` | Logging verbosity (`debug`, `info`, `warn`, `error`) |
 | `CYAN_CMD` | `cyan` | Path or command name for the `cyan` CLI |
-| `PUBLIC_DOMAIN` | *(auto)* | Public base URL for install/plist links. Leave blank to auto-detect from request headers. |
+| `PUBLIC_DOMAIN` | *(auto)* | Public base URL for install/plist links. On Render, `RENDER_EXTERNAL_URL` is used automatically; elsewhere it falls back to the request host. |
 
 ---
 
