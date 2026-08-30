@@ -48,7 +48,7 @@ function buildPublicUrl(req, routePath) {
 const CYAN_CMD = process.env.CYAN_CMD || 'cyan';
 
 const WORK_DIR = path.join(__dirname, 'uploads');
-const REQUIRED_DIRS = ['p12', 'mp', 'temp', 'signed', 'plist'];
+const REQUIRED_DIRS = ['p12', 'mp', 'temp', 'signed', 'plist', 'metadata'];
 const logDir = path.join(__dirname, 'logs');
 
 if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
@@ -68,8 +68,8 @@ logger.add(new winston.transports.Console({ format: winston.format.simple() }));
 
 const app = express();
 app.set('trust proxy', true);
-app.use(express.urlencoded({ extended: true, limit: '500mb' }));
-app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+app.use(express.json({ limit: '1mb' }));
 app.use(cors());
 
 const limiter = rateLimit({
@@ -87,7 +87,6 @@ for (const dir of REQUIRED_DIRS) {
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(__dirname));
 app.use('/signed', express.static(path.join(WORK_DIR, 'signed')));
 app.use('/plist', express.static(path.join(WORK_DIR, 'plist')));
 
@@ -182,11 +181,29 @@ const upload = multer({
 });
 
 function generateRandomSuffix() {
-  return `${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  return crypto.randomBytes(12).toString('hex');
 }
 
 function sanitizeFilename(name) {
   return name.replace(/[^a-zA-Z0-9_-]/g, '');
+}
+
+function escapeXml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function generateManifestPlist(ipaUrl, bundleId, bundleVersion, displayName) {
@@ -203,19 +220,19 @@ function generateManifestPlist(ipaUrl, bundleId, bundleVersion, displayName) {
           <key>kind</key>
           <string>software-package</string>
           <key>url</key>
-          <string>${ipaUrl}</string>
+          <string>${escapeXml(ipaUrl)}</string>
         </dict>
       </array>
       <key>metadata</key>
       <dict>
         <key>bundle-identifier</key>
-        <string>${bundleId || 'com.example.app'}</string>
+        <string>${escapeXml(bundleId || 'com.example.app')}</string>
         <key>bundle-version</key>
-        <string>${bundleVersion}</string>
+        <string>${escapeXml(bundleVersion)}</string>
         <key>kind</key>
         <string>software</string>
         <key>title</key>
-        <string>${displayName}</string>
+        <string>${escapeXml(displayName)}</string>
       </dict>
     </dict>
   </array>
@@ -368,7 +385,7 @@ app.post('/sign',
       const directInstallLink = `itms-services://?action=download-manifest&url=${encodeURIComponent(manifestUrl)}`;
       const installPageUrl = buildPublicUrl(req, `install/${uniqueSuffix}`);
 
-      metadataPath = path.join(WORK_DIR, 'temp', `${uniqueSuffix}.json`);
+      metadataPath = path.join(WORK_DIR, 'metadata', `${uniqueSuffix}.json`);
       const metadata = {
         displayName,
         bundleId,
@@ -402,72 +419,107 @@ app.post('/sign',
 );
 
 // --- INSTALL PAGE ---
-app.get('/install/:id', async (req, res) => {
-  const id = req.params.id;
-  const metadataPath = path.join(WORK_DIR, 'temp', `${id}.json`);
+app.get('/install/:id', async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    if (!/^[A-Za-z0-9_-]{8,64}$/.test(id)) {
+      return res.status(404).send('Install link expired or not found.');
+    }
 
-  if (!fs.existsSync(metadataPath)) return res.status(404).send('Install link expired or not found.');
+    const metadataPath = path.join(WORK_DIR, 'metadata', `${id}.json`);
+    if (!fs.existsSync(metadataPath)) {
+      return res.status(404).send('Install link expired or not found.');
+    }
 
-  const data = JSON.parse(await fsp.readFile(metadataPath, 'utf8'));
+    const data = JSON.parse(await fsp.readFile(metadataPath, 'utf8'));
+    if (Date.now() > data.expiresAt) {
+      await fsp.unlink(metadataPath);
+      return res.status(410).send('This install link has expired.');
+    }
 
-  if (Date.now() > data.expiresAt) {
-    await fsp.unlink(metadataPath);
-    return res.status(410).send('This install link has expired.');
-  }
+    const displayName = escapeHtml(data.displayName);
+    const bundleVersion = escapeHtml(data.bundleVersion);
+    const bundleId = escapeHtml(data.bundleId);
+    const installLink = escapeHtml(data.installLink);
 
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Install ${data.displayName}</title>
-        <link rel="stylesheet" href="/style.css">
-      </head>
-      <body>
-        <main class="page">
-          <div class="container">
-            <div class="card install-info">
-              <h1>${data.displayName}</h1>
-              <p class="install-meta">Version <b>${data.bundleVersion}</b></p>
-              <p class="install-meta">Bundle ID <b>${data.bundleId}</b></p>
-              <a href="${data.installLink}" class="btn-link">Install on iOS</a>
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Install ${displayName}</title>
+          <link rel="stylesheet" href="/style.css">
+        </head>
+        <body>
+          <main class="page">
+            <div class="container">
+              <div class="card install-info">
+                <h1>${displayName}</h1>
+                <p class="install-meta">Version <b>${bundleVersion}</b></p>
+                <p class="install-meta">Bundle ID <b>${bundleId}</b></p>
+                <a href="${installLink}" class="btn-link">Install on iOS</a>
+              </div>
             </div>
-          </div>
-        </main>
-      </body>
-    </html>
-  `);
+          </main>
+        </body>
+      </html>
+    `);
+  } catch (err) {
+    next(err);
+  }
 });
 
-// Periodic cleanup: remove files older than 20 minutes from uploads subfolders (except 'signed' and 'plist')
-const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // every 5 minutes
-const FILE_MAX_AGE_MS = 20 * 60 * 1000; // 20 minutes
-const EXCLUDE_DIRS = ['signed', 'plist'];
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+const SHORT_LIVED_FILE_MAX_AGE_MS = 20 * 60 * 1000;
+const INSTALL_FILE_MAX_AGE_MS = 60 * 60 * 1000;
+const DIR_MAX_AGE_MS = {
+  p12: SHORT_LIVED_FILE_MAX_AGE_MS,
+  mp: SHORT_LIVED_FILE_MAX_AGE_MS,
+  temp: SHORT_LIVED_FILE_MAX_AGE_MS,
+  signed: INSTALL_FILE_MAX_AGE_MS,
+  plist: INSTALL_FILE_MAX_AGE_MS,
+  metadata: INSTALL_FILE_MAX_AGE_MS,
+};
 
 async function cleanupUploads() {
   try {
     for (const dir of REQUIRED_DIRS) {
-      if (EXCLUDE_DIRS.includes(dir)) continue;
       const dirPath = path.join(WORK_DIR, dir);
       const files = await fsp.readdir(dirPath);
+      const maxAgeMs = DIR_MAX_AGE_MS[dir];
+
       for (const file of files) {
         const filePath = path.join(dirPath, file);
+
         try {
           const stat = await fsp.stat(filePath);
-          if (Date.now() - stat.mtimeMs > FILE_MAX_AGE_MS) {
+          if (stat.isFile() && Date.now() - stat.mtimeMs > maxAgeMs) {
             await fsp.unlink(filePath);
             logger.info(`Cleaned up old file: ${filePath}`);
           }
-        } catch (e) { /* ignore individual file errors */ }
+        } catch {}
       }
     }
-  } catch (e) {
-    logger.error('Cleanup error: ' + e.message);
+  } catch (err) {
+    logger.error(`Cleanup error: ${err.message}`);
   }
 }
 
-setInterval(cleanupUploads, CLEANUP_INTERVAL_MS);
+cleanupUploads();
+setInterval(cleanupUploads, CLEANUP_INTERVAL_MS).unref();
+
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+
+  if (err instanceof multer.MulterError || err.message === 'Invalid file type') {
+    logger.warn(`Upload rejected: ${err.message}`);
+    return res.status(400).json({ error: err.message });
+  }
+
+  logger.error(`Unhandled request error: ${err.message}`);
+  return res.status(500).json({ error: 'Internal server error' });
+});
 
 if (!global.serverStarted) {
   app.listen(PORT, () => {
